@@ -1,31 +1,78 @@
 "use client"
 import { signinFormValidateSchema } from '@/helpers/yup-Schema'
 import { delay } from '@/utils'
-import axios from 'axios'
+// import axios from 'axios'
 import { useFormik } from 'formik'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
+import { ClipLoader } from 'react-spinners'
 interface UserDataTypes {
     email: string; password: string
 }
 const SignIn = () => {
 
 
+    const [loading, setLoading] = useState(false);
+    // const [response, setResponse] = useState("")
+    const [error, setError] = useState({
+        error: false,
+        message: "",
+    });
 
+    const handleLogin = async (user: UserDataTypes) => {
+        setError({ error: false, message: "" });
+
+        try {
+            setLoading(true);
+            let response = await fetch("https://mybackend-06gh.onrender.com/user/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(user),
+            });
+            let data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                setError({ error: true, message: data.message });
+                return;
+            }
+
+            console.log(data);
+
+
+            if (data.success === true) {
+                toast.success(data.message);
+                await delay(1000);
+                window.location.href = "/";
+            }
+        } catch (error) {
+            setError({ error: true, message: "something was wroing ! " });
+            toast.error("something was wrong ! ");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const { handleSubmit, handleChange, handleBlur, errors, touched, values } = useFormik({
         initialValues: {
             email: '',
             password: '',
-
         } as UserDataTypes,
         validationSchema: signinFormValidateSchema,
-        onSubmit: values => {
-            console.log(values)
-
-        }
+        onSubmit: async (values) => {
+            if (navigator.onLine) {
+                handleLogin(values);
+            } else {
+                setLoading(true);
+                await delay(3000);
+                setLoading(false);
+                toast.error("please conncet to the internet")
+            }
+        },
     });
 
 
@@ -34,15 +81,18 @@ const SignIn = () => {
 
 
 
-        <main className="min-h-screen  text-gray-900 flex justify-center items-center">
+        <main className="min-h-screen  text-gray-900 flex justify-center items-center bg-white">
 
             <div className="sm:rounded-lg flex justify-center flex-1">
                 <div className=" p-6 sm:p-12">
+                    {
+                        loading && <div className="w-full h-screen absolute top-0 left-0 z-50 bg-black/50 flex items-center justify-center"><ClipLoader color="#fff" /></div>
+                    }
                     <div className='flex items-center justify-center'>
                         <h1 className='font-semibold text-3xl'>SHOP-24 BD</h1>
 
                     </div>
-                    <div className="mt-12 flex flex-col items-center">
+                    <div className="mt-6 flex flex-col items-center">
                         <h1 className="text-2xl xl:text-3xl font-bold">Sign In</h1>
                         <div className="w-full flex-1 mt-8">
                             <div className="flex flex-col items-center">
@@ -69,6 +119,12 @@ const SignIn = () => {
                                     </div>
                                     <span className="ml-4">Sign Up with Google</span>
                                 </button>
+
+                                {error.error && (
+                                    <span className="flex  w-full p-3 items-center text-center text-lg text-red-500 font-semibold justify-center">
+                                        {error.message}
+                                    </span>
+                                )}
 
                             </div>
                             <div className="my-12 border-b text-center">

@@ -1,13 +1,16 @@
 "use client";
 import { signupFormValidateSchema } from "@/helpers/yup-Schema";
+import useSignup from "@/hooks/useSignup";
 import { delay } from "@/utils";
 import { useFormik } from "formik";
+import { Span } from "next/dist/trace";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from "jwt-decode";
+import { ClipLoader } from "react-spinners";
+// import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+// import { jwtDecode } from "jwt-decode";
 
 interface UserDataTypes {
     username: string;
@@ -15,9 +18,46 @@ interface UserDataTypes {
     password: string;
 }
 const Signup = () => {
+    const [loading, setLoading] = useState(false);
+    // const [response, setResponse] = useState("")
+    const [error, setError] = useState({
+        error: false,
+        message: "",
+    });
+    const handleSignup = async (user: UserDataTypes) => {
+        setError({ error: false, message: "" });
+        try {
+            setLoading(true);
+            let response = await fetch("https://mybackend-06gh.onrender.com/user/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(user),
+            });
+            let data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.message);
+                setError({ error: true, message: data.message });
+                return;
+            }
 
 
 
+
+            if (data.success === true) {
+                toast.success(data.message);
+                await delay(1000);
+                window.location.href = "/login";
+            }
+        } catch (error) {
+            setError({ error: true, message: "something was wroing ! " });
+            toast.error("something was wrong ! ");
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
 
@@ -29,42 +69,38 @@ const Signup = () => {
                 password: "",
             } as UserDataTypes,
             validationSchema: signupFormValidateSchema,
-            onSubmit: (values) => {
-                console.log(values);
-                // if (navigator.onLine) {
-                //     handleSignup(values);
-                // } else {
-                //     toast.error("please conncet to the  internet ");
-                // }
+            onSubmit: async (values) => {
+                if (navigator.onLine) {
+                    handleSignup(values);
+                } else {
+                    setLoading(true);
+                    await delay(3000);
+                    setLoading(false);
+                    toast.error("please conncet to the internet")
+                }
             },
         });
 
-
-
-
-
-
-
-
-
-
-
-
     return (
-        <main className="min-h-screen  text-gray-900 flex justify-center items-center">
-
+        <main className="min-h-screen relative  text-gray-900 bg-white flex justify-center items-center">
             <div className="sm:rounded-lg flex justify-center flex-1">
+                {
+                    loading && <div className="w-full h-screen absolute top-0 left-0 z-50 bg-black/50 flex items-center justify-center"><ClipLoader color="#fff" /></div>
+                }
                 <div className=" p-6 sm:p-12">
                     <div className="flex items-center justify-center">
-                        <h1 className="font-semibold text-3xl">SHOP-24 BD</h1>
+                        <Link href={"/"}>
+                            <img src="./myshopbd-dark.png" className="w-[200px]" alt="" />
+                        </Link>
                     </div>
-                    <div className="mt-12 flex flex-col items-center">
+                    <div className="mt-6 flex flex-col items-center">
                         <h1 className="text-2xl xl:text-3xl font-bold">Sign up</h1>
-                        <div className="w-full flex-1 mt-8">
+                        <div className="w-full flex-1 mt-5">
                             <div className="flex flex-col items-center">
-                                <button className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline" onClick={() => {
-
-                                }} >
+                                <button
+                                    className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
+                                    onClick={() => { }}
+                                >
                                     <div className="bg-white p-2 rounded-full">
                                         <svg className="w-4" viewBox="0 0 533.5 544.3">
                                             <path
@@ -87,9 +123,13 @@ const Signup = () => {
                                     </div>
                                     <span className="ml-4">Sign Up with Google</span>
                                 </button>
-
                             </div>
-                            <div className="my-12 border-b text-center">
+                            {error.error && (
+                                <span className="flex  w-full p-3 items-center text-center text-lg text-red-500 font-semibold justify-center">
+                                    {error.message}
+                                </span>
+                            )}
+                            <div className="my-5 border-b text-center">
                                 <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
                                     Or sign up with e-mail
                                 </div>
@@ -168,7 +208,9 @@ const Signup = () => {
                                         <circle cx="8.5" cy={7} r={4} />
                                         <path d="M20 8v6M23 11h-6" />
                                     </svg>
-                                    <span className="ml-3">Sign Up</span>
+                                    <span className="ml-3">
+                                        {loading ? "Loading..." : "Sign Up"}
+                                    </span>
                                 </button>
                                 <p className="mt-6 text-xs text-gray-600 text-center">
                                     I agree to abide by templatana &apos; s

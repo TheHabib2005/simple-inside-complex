@@ -1,20 +1,20 @@
-import CryptoJS from "crypto-js";
+// import CryptoJS from "crypto-js";
 
 export const delay = async (time: number) =>
   new Promise((resolve) => setTimeout(resolve, time));
 
 const secretKey = "YourSecretKey123"; // Replace with your actual secret key
 
-export function encryptObject(obj: Object) {
-  const jsonString = JSON.stringify(obj);
-  return CryptoJS.AES.encrypt(jsonString, secretKey).toString();
-}
+// export function encryptObject(obj: Object) {
+//   const jsonString = JSON.stringify(obj);
+//   return CryptoJS.AES.encrypt(jsonString, secretKey).toString();
+// }
 
-export function decryptObject(encryptedString: string) {
-  const bytes = CryptoJS.AES.decrypt(encryptedString, secretKey);
-  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-  return JSON.parse(decryptedData);
-}
+// export function decryptObject(encryptedString: string) {
+//   const bytes = CryptoJS.AES.decrypt(encryptedString, secretKey);
+//   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+//   return JSON.parse(decryptedData);
+// }
 
 export function calculateDiscountedPrice<T extends number>(
   originalPrice: T,
