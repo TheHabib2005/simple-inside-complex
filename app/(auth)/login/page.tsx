@@ -1,6 +1,7 @@
 "use client"
 import { signinFormValidateSchema } from '@/helpers/yup-Schema'
 import { delay } from '@/utils'
+import axios from 'axios'
 // import axios from 'axios'
 import { useFormik } from 'formik'
 import Link from 'next/link'
@@ -32,6 +33,7 @@ const SignIn = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(user),
+                credentials: "include"
             });
             let data = await response.json();
 
@@ -50,7 +52,7 @@ const SignIn = () => {
                 window.location.href = "/";
             }
         } catch (error) {
-            setError({ error: true, message: "something was wroing ! " });
+            // setError({ error: true, message: "something was wroing ! " });
             toast.error("something was wrong ! ");
         } finally {
             setLoading(false);
@@ -80,7 +82,6 @@ const SignIn = () => {
     return (
 
 
-
         <main className="min-h-screen  text-gray-900 flex justify-center items-center bg-white">
 
             <div className="sm:rounded-lg flex justify-center flex-1">
@@ -88,10 +89,9 @@ const SignIn = () => {
                     {
                         loading && <div className="w-full h-screen absolute top-0 left-0 z-50 bg-black/50 flex items-center justify-center"><ClipLoader color="#fff" /></div>
                     }
-                    <div className='flex items-center justify-center'>
-                        <h1 className='font-semibold text-3xl'>SHOP-24 BD</h1>
 
-                    </div>
+
+
                     <div className="mt-6 flex flex-col items-center">
                         <h1 className="text-2xl xl:text-3xl font-bold">Sign In</h1>
                         <div className="w-full flex-1 mt-8">
@@ -127,7 +127,7 @@ const SignIn = () => {
                                 )}
 
                             </div>
-                            <div className="my-12 border-b text-center">
+                            <div className="my-6 border-b text-center">
                                 <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
                                     Or sign up with e-mail
                                 </div>

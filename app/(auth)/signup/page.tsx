@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
+import logo from "@/public/myshopbd-dark.png"
 // import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
 // import { jwtDecode } from "jwt-decode";
 
@@ -43,14 +44,12 @@ const Signup = () => {
                 return;
             }
 
-
-
-
-            if (data.success === true) {
+            if (data.success) {
                 toast.success(data.message);
                 await delay(1000);
                 window.location.href = "/login";
             }
+
         } catch (error) {
             setError({ error: true, message: "something was wroing ! " });
             toast.error("something was wrong ! ");
@@ -88,11 +87,7 @@ const Signup = () => {
                     loading && <div className="w-full h-screen absolute top-0 left-0 z-50 bg-black/50 flex items-center justify-center"><ClipLoader color="#fff" /></div>
                 }
                 <div className=" p-6 sm:p-12">
-                    <div className="flex items-center justify-center">
-                        <Link href={"/"}>
-                            <img src="./myshopbd-dark.png" className="w-[200px]" alt="" />
-                        </Link>
-                    </div>
+
                     <div className="mt-6 flex flex-col items-center">
                         <h1 className="text-2xl xl:text-3xl font-bold">Sign up</h1>
                         <div className="w-full flex-1 mt-5">
